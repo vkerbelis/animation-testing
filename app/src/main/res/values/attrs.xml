@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MaskTiltImageView">
+        <attr name="src" format="reference"/>
+        <attr name="mask" format="reference"/>
+        <attr name="tiltStrength" format="float"/>
+    </declare-styleable>
+</resources>
