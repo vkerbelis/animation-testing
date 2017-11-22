@@ -21,7 +21,7 @@ public class MaskTiltImageView extends View {
     private final TiltEntity image = new TiltEntity();
     private final TiltEntity result = new TiltEntity();
     private Canvas resultCanvas;
-    private AccelerometerTiltMonitor tiltMonitor;
+    private TiltMonitor tiltMonitor;
     private float tiltStrength = DEFAULT_TILT_STRENGTH;
     private float tiltX = 0;
     private int viewWidth;
@@ -67,7 +67,7 @@ public class MaskTiltImageView extends View {
 
     private void setUpTiltMonitor(@NonNull Context context) {
         SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        tiltMonitor = new AccelerometerTiltMonitor(sensorManager);
+        tiltMonitor = new SmoothTiltMonitorDecorator(new AccelerometerTiltMonitor(sensorManager));
     }
 
     @Override
@@ -85,6 +85,7 @@ public class MaskTiltImageView extends View {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        setLayerType(View.LAYER_TYPE_HARDWARE, null);
         tiltMonitor.register(new TiltMonitor.TiltListener() {
             @Override
             public void onTiltChanged(float x, float y, float z) {
@@ -97,37 +98,20 @@ public class MaskTiltImageView extends View {
     @Override
     protected void onDetachedFromWindow() {
         tiltMonitor.unregister();
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         super.onDetachedFromWindow();
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        resultCanvas.save();
         canvas.save();
         float tiltedCenter = calculateConstrainedTiltCenter();
         resultCanvas.drawBitmap(image.bitmap, 0, 0, null);
         resultCanvas.drawBitmap(mask.bitmap, tiltedCenter, 0, mask.paint);
         canvas.drawBitmap(result.bitmap, 0, 0, result.paint);
         canvas.restore();
-        resultCanvas.restore();
     }
-
-    /*      Bitmap original = BitmapFactory.decodeResource(getContext().getResources(),R.drawable.original_image);
-        Bitmap mask = Bitmap.createBitmap(getContext().getResources(),R.drawable.mask_image);
-
-        //You can change original image here and draw anything you want to be masked on it.
-
-        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Config.ARGB_8888);
-        Canvas tempCanvas = new Canvas(result);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setXfermode(new PorterDuffXfermode(Mode.DST_IN));
-        tempCanvas.drawBitmap(original, 0, 0, null);
-        tempCanvas.drawBitmap(mask, 0, 0, paint);
-        paint.setXfermode(null);
-
-        //Draw result after performing masking
-        canvas.drawBitmap(result, 0, 0, new Paint());*/
 
     private float calculateConstrainedTiltCenter() {
         int halfWidth = viewWidth / 2;

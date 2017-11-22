@@ -7,11 +7,11 @@
 
     <dk.arriva.mobilbillet.animationtesting.MaskTiltImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:mask="@drawable/draw_gradient"
-        app:src="@drawable/transparent"
+        app:src="@drawable/doge"
         app:tiltStrength="2.0"/>
 
 </android.support.constraint.ConstraintLayout>
