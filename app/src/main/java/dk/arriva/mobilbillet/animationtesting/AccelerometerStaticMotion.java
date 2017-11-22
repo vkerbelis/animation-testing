@@ -1,37 +1,30 @@
 package dk.arriva.mobilbillet.animationtesting;
 
 import android.app.Activity;
-import android.content.Context;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 
-import static dk.arriva.mobilbillet.animationtesting.AccelerometerTiltMonitor.FLAG_ZERO_TO_ONE;
-
 public class AccelerometerStaticMotion extends Activity {
-    private AccelerometerTiltMonitor tiltMonitor;
+    private TiltMonitor tiltMonitor;
+    private DefaultTiltViewLifecycleObserver lifecycleObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        tiltMonitor = new AccelerometerTiltMonitor(sensorManager, FLAG_ZERO_TO_ONE);
         setContentView(R.layout.activity_static);
+        lifecycleObserver = new DefaultTiltViewLifecycleObserver();
+        MaskTiltImageView tiltImageView = findViewById(R.id.tiltImageView);
+        tiltImageView.setLifecycleObserver(lifecycleObserver);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        tiltMonitor.register(new TiltMonitor.TiltListener() {
-            @Override
-            public void onTiltChanged(float x, float y, float z) {
-                // Do nothing
-            }
-        });
+        lifecycleObserver.onViewStarted();
     }
 
     @Override
     protected void onStop() {
-        tiltMonitor.unregister();
+        lifecycleObserver.onViewStopped();
         super.onStop();
     }
 }

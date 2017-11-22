@@ -70,6 +70,26 @@ public class MaskTiltImageView extends View {
         tiltMonitor = new SmoothTiltMonitorDecorator(new AccelerometerTiltMonitor(sensorManager));
     }
 
+    public void setLifecycleObserver(@NonNull TiltViewLifecycleObserver lifecycleObserver) {
+        lifecycleObserver.register(new TiltViewLifecycleObserver.LifecycleListener() {
+            @Override
+            public void onViewStarted() {
+                tiltMonitor.register(new TiltMonitor.TiltListener() {
+                    @Override
+                    public void onTiltChanged(float x, float y, float z) {
+                        tiltX = x;
+                        postInvalidate();
+                    }
+                });
+            }
+
+            @Override
+            public void onViewStopped() {
+                tiltMonitor.unregister();
+            }
+        });
+    }
+
     @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
@@ -86,18 +106,10 @@ public class MaskTiltImageView extends View {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        tiltMonitor.register(new TiltMonitor.TiltListener() {
-            @Override
-            public void onTiltChanged(float x, float y, float z) {
-                tiltX = x;
-                postInvalidate();
-            }
-        });
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        tiltMonitor.unregister();
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         super.onDetachedFromWindow();
     }
